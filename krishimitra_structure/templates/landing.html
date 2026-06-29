@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiMitra — Feeding India, One Smart Farm at a Time</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+         :root {
+            --primary-dark: #1a4d2e;
+            --primary-mid: #2d7a45;
+            --primary-light: #4a9e5c;
+            --accent-gold: #c8a951;
+            --bg-cream: #f5f0e8;
+            --white: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        /* Hero Section */
+        
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            background: linear-gradient(rgba(26, 77, 46, 0.75), rgba(26, 77, 46, 0.85)), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1600&auto=format&fit=crop') no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .hero h2 {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            font-weight: 500;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .cta-btn {
+            background-color: var(--primary-mid);
+            color: var(--white);
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(45, 122, 69, 0.4);
+            display: inline-block;
+        }
+        
+        .cta-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 77, 46, 0.6);
+        }
+        /* Stats Strip */
+        
+        .stats-strip {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-gold);
+        }
+        
+        .stat-item {
+            margin: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+        
+        .stat-item p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        /* Section Containers */
+        
+        .section {
+            padding: 80px 10%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 50px;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-gold);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        /* Timeline History Layout */
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--primary-mid);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+        
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+        
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            right: -8px;
+            background-color: var(--white);
+            border: 4px solid var(--accent-gold);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .left {
+            left: 0;
+            text-align: right;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .right::after {
+            left: -8px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: var(--white);
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timeline-content h3 {
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+        /* Cards Layout (Trends & Features) */
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card i {
+            font-size: 2.5rem;
+            color: var(--primary-mid);
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        /* News Section Grid */
+        
+        #news-feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .news-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .news-img {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+        
+        .news-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .news-title {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .news-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .news-link {
+            color: var(--primary-mid);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .news-link:hover {
+            color: var(--primary-dark);
+        }
+        /* Footer */
+        
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+            border-top: 4px solid var(--accent-gold);
+        }
+        
+        footer p {
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        /* Animations */
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Responsive Breakpoints */
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.3rem;
+            }
+            .hero h2 {
+                font-size: 1.4rem;
+            }
+            .timeline::after {
+                left: 31px;
+            }
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .left {
+                text-align: left;
+            }
+            .left::after,
+            .right::after {
+                left: 23px;
+            }
+            .timeline-container.right {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>Feeding India, One Smart Farm at a Time</h1>
+        <h2>भारतीय किसानों के लिए स्मार्ट खेती</h2>
+        <a href="/login" class="cta-btn">Get Started <i class="fa-solid fa-arrow-right"></i></a>
+    </header>
+
+    <!-- Stats Strip -->
+    <section class="stats-strip">
+        <div class="stat-item">
+            <h3>58%</h3>
+            <p>Workforce in Agriculture</p>
+        </div>
+        <div class="stat-item">
+            <h3>140M</h3>
+            <p>Hectares of Farmland</p>
+        </div>
+        <div class="stat-item">
+            <h3>₹20L Cr</h3>
+            <p>GDP Contribution</p>
+        </div>
+    </section>
+
+    <!-- Farming History Section -->
+    <section class="section">
+        <h2 class="section-title">Indian Farming Evolution</h2>
+        <div class="timeline">
+            <div class="timeline-container left">
+                <div class="timeline-content">
+                    <h3>2000 BCE</h3>
+                    <p><strong>Indus Valley Civilization:</strong> Early architectural irrigation channels and systematic crop-rotation systems across regional belts.</p>
+                </div>
+            </div>
+            <div class="timeline-container right">
+                <div class="timeline-content">
+                    <h3>1960s</h3>
+                    <p><strong>The Green Revolution:</strong> Introduction of High-Yielding Variety (HYV) seeds, modern machinery installations, and fertilizer paradigms.</p>
+                </div>
+            </div>
+            <div class="timeline-container left">
+                <div class="timeline-content">
+                    <h3>Present Day</h3>
+                    <p><strong>Digital Farming Era:</strong> Precision algorithms, automated sensor data streaming, and ML prediction platforms driving micro-level field analytics.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trends Section -->
+    <section class="section" style="background-color: rgba(255,255,255,0.5);">
+        <h2 class="section-title">Modern Agricultural Trends</h2>
+        <div class="card-grid">
+            <div class="card">
+                <i class="fa-solid fa-crosshairs"></i>
+                <h3>Precision Farming</h3>
+                <p>Targeting dynamic variable-rate applications of irrigation inputs, optimized to sub-meter field variances.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-helicopter"></i>
+                <h3>Drone Technology</h3>
+                <p>Real-time multispectral imaging to diagnose field canopy stresses and automate localized spraying tracks.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-seedling"></i>
+                <h3>Organic Growth</h3>
+                <p>Biological inputs replacing chemical foundations to support structural multi-season crop ecosystem wellness.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Teaser Section -->
+    <section class="section">
+        <h2 class="section-title">Smart Modules Preview</h2>
+        <div class="card-grid">
+            <div class="card">
+                <i class="fa-solid fa-plant-wilt"></i>
+                <h3>Crop Recommendation</h3>
+                <p>Predict optimal crops based on soil metrics (N, P, K, pH) paired with localized geographic climate markers.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-flask-vial"></i>
+                <h3>Soil Analysis</h3>
+                <p>Deep Learning evaluations calculating composite health indexes and targeted fertilizer adjustment workflows.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-cloud-sun-rain"></i>
+                <h3>Weather Intelligence</h3>
+                <p>Live meteorological feeds with structural alert profiles and targeted crop sowing window adjustments.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live News Feed Section -->
+    <section class="section">
+        <h2 class="section-title">Live Agriculture News</h2>
+        <div id="news-feed">
+            <!-- News Cards will be dynamically inserted here via Javascript fetch -->
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-mid);"></i>
+                <p style="margin-top: 10px;">Loading agricultural news feeds...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>KrishiMitra — Feeding India, One Smart Farm at a Time 🌾</p>
+        <a href="/login" style="color: var(--accent-gold); text-decoration: none; font-weight: 500;">Access Portal Dashboard</a>
+    </footer>
+
+    <!-- GNews API Implementation Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Replace with your real gnews.io API token or keep proxy configuration
+            const API_KEY = "YOUR_GNEWS_API_KEY";
+            const newsContainer = document.getElementById("news-feed");
+
+            // Safe fallback articles if API key is not configured yet or limit reached
+            const fallbackArticles = [{
+                title: "Government Focuses on AgTech Infrastructure Upgrades for Rabi Cycle",
+                source: {
+                    name: "Krishi News Desk"
+                },
+                publishedAt: "2026-06-28T10:00:00Z",
+                image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=600&auto=format&fit=crop",
+                url: "#"
+            }, {
+                title: "New Sub-surface Drip Systems Elevate Water Efficiency Across Gujarat Farmlands",
+                source: {
+                    name: "National Agri Portal"
+                },
+                publishedAt: "2026-06-25T14:30:00Z",
+                image: "https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?q=80&w=600&auto=format&fit=crop",
+                url: "#"
+            }, {
+                title: "Organic Certification Standards Modified to Streamline Smallholder Exports",
+                source: {
+                    name: "Bharat Farming Journal"
+                },
+                publishedAt: "2026-06-22T08:15:00Z",
+                image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?q=80&w=600&auto=format&fit=crop",
+                url: "#"
+            }];
+
+            function renderArticles(articles) {
+                newsContainer.innerHTML = "";
+                articles.forEach(article => {
+                    const date = new Date(article.publishedAt).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+
+                    const card = document.createElement("div");
+                    card.className = "news-card";
+                    card.innerHTML = `
+                        <img class="news-img" src="${article.image || 'https://images.unsplash.com/photo-1625246333195-78d9c38ad451?q=80&w=600&auto=format&fit=crop'}" alt="News Image">
+                        <div class="news-content">
+                            <h4 class="news-title">${article.title}</h4>
+                            <div class="news-meta">
+                                <span><i class="fa-solid fa-newspaper"></i> ${article.source.name}</span> &nbsp;|&nbsp;
+                                <span><i class="fa-solid fa-calendar-days"></i> ${date}</span>
+                            </div>
+                            <a href="${article.url}" target="_blank" class="news-link">Read More <i class="fa-solid fa-arrow-trend-up"></i></a>
+                        </div>
+                    `;
+                    newsContainer.appendChild(card);
+                });
+            }
+
+            if (API_KEY === "YOUR_GNEWS_API_KEY" || API_KEY === "") {
+                // If no token, present clean fallback system metrics preview smoothly
+                setTimeout(() => renderArticles(fallbackArticles), 800);
+            } else {
+                fetch(`https://gnews.io/api/v4/search?q=india+agriculture&lang=en&token=${API_KEY}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("API Limit Reached");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.articles && data.articles.length > 0) {
+                            renderArticles(data.articles.slice(0, 6));
+                        } else {
+                            renderArticles(fallbackArticles);
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Using fallback news due to API route constraints:", err);
+                        renderArticles(fallbackArticles);
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>

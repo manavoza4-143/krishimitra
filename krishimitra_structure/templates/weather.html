@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Intelligence Portal — KrishiMitra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <style>
+         :root {
+            --primary-dark: #1a4d2e;
+            --primary-mid: #2d7a45;
+            --primary-light: #4a9e5c;
+            --accent-gold: #c8a951;
+            --bg-cream: #f5f0e8;
+            --white: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --warning-orange: #f0ad4e;
+            --danger-red: #d9534f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* Workspace Grid Split Layout Layout */
+        
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 900px) {
+            .weather-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .workspace-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        /* Search Bar Controller Components */
+        
+        .search-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-control {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        
+        .search-control:focus {
+            border-color: var(--primary-mid);
+        }
+        
+        .icon-btn {
+            background-color: var(--primary-mid);
+            color: var(--white);
+            border: none;
+            padding: 0 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        /* Weather Metric Monitor Blocks */
+        
+        .current-weather-hero {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--bg-cream);
+            margin-bottom: 20px;
+        }
+        
+        .location-header {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .temp-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-mid);
+            margin: 10px 0;
+        }
+        
+        .conditions-sub {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+        
+        .metrics-sub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .sub-metric-box {
+            background-color: var(--bg-cream);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+        
+        .sub-metric-box i {
+            font-size: 1.4rem;
+            color: var(--primary-mid);
+        }
+        /* Leaflet Interactive Map Canvas Component Block */
+        
+        #mapCanvas {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            border: 3px solid var(--white);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            z-index: 1;
+        }
+        /* Agricultural Advisories Modules Panels Layout */
+        
+        .alerts-panel {
+            background-color: #fff8eb;
+            border-left: 5px solid var(--warning-orange);
+            padding: 15px 20px;
+            border-radius: 4px 8px 8px 4px;
+            margin-bottom: 25px;
+        }
+        
+        .alerts-panel h4 {
+            color: #b7791f;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sowing-calendar-box {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        
+        .calendar-title {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .crop-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .sow-badge {
+            background-color: #e6f4ea;
+            color: var(--primary-dark);
+            border: 1.5px solid var(--primary-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="alerts-panel">
+            <h4><i class="fa-solid fa-triangle-exclamation"></i> Active Agro-Meteorological Alert Watch</h4>
+            <p id="alertDescriptionText">Monitoring seasonal precipitation changes. High humidity metrics indicate early regional crop canopy disease stress vectors.</p>
+        </div>
+
+        <div class="weather-grid">
+
+            <div class="workspace-card">
+                <div class="search-wrapper">
+                    <input type="text" id="citySearchInput" class="search-control" placeholder="Search Indian city location (e.g. Surat)..." value="Ahmedabad">
+                    <button id="searchExecuteBtn" class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button id="geoLocateBtn" class="icon-btn" style="background-color: var(--primary-light);"><i class="fa-solid fa-location-crosshairs"></i></button>
+                </div>
+
+                <div class="current-weather-hero">
+                    <div class="location-header" id="uiLocationLabel">Ahmedabad, Gujarat</div>
+                    <div class="temp-display" id="uiTempLabel">--°C</div>
+                    <div class="conditions-sub" id="uiConditionLabel">Loading live metrics...</div>
+                </div>
+
+                <div class="metrics-sub-grid">
+                    <div class="sub-metric-box">
+                        <i class="fa-solid fa-droplet"></i>
+                        <div>
+                            <p style="color: var(--text-secondary); font-size: 0.8rem;">Relative Humidity</p>
+                            <strong id="uiHumidityLabel">--%</strong>
+                        </div>
+                    </div>
+                    <div class="sub-metric-box">
+                        <i class="fa-solid fa-wind"></i>
+                        <div>
+                            <p style="color: var(--text-secondary); font-size: 0.8rem;">Wind Velocity</p>
+                            <strong id="uiWindLabel">-- km/h</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mapCanvas"></div>
+        </div>
+
+        <div class="sowing-calendar-box">
+            <div class="calendar-title">
+                <i class="fa-solid fa-calendar-check" style="color: var(--primary-mid);"></i>
+                <span>Active Sowing Matrix Calendar — June (Kharif Cycle Target)</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
+                Based on current high precipitation trends and ambient heat parameters matching this month, these regional crops are optimal to sow now:
+            </p>
+            <div class="crop-badge-row">
+                <span class="sow-badge"><i class="fa-solid fa-seedling"></i> Rice (Paddy) 🌾</span>
+                <span class="sow-badge"><i class="fa-solid fa-seedling"></i> Cotton (Kapas) 🌱</span>
+                <span class="sow-badge"><i class="fa-solid fa-seedling"></i> Maize (Corn) 🌽</span>
+                <span class="sow-badge"><i class="fa-solid fa-seedling"></i> Groundnut 🥜</span>
+                <span class="sow-badge"><i class="fa-solid fa-seedling"></i> Turmeric / Ginger 🫚</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Default center coordinates setup (Ahmedabad)
+            let currentLat = 23.0225;
+            let currentLon = 72.5714;
+
+            // Initialize Leaflet Map Canvas Frame Engine Instance
+            const map = L.map('mapCanvas').setView([currentLat, currentLon], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let currentMarker = L.marker([currentLat, currentLon]).addTo(map);
+
+            // Fetch Meteorology payloads directly from Open-Meteo REST API
+            async function fetchMeteorologyData(lat, lon, locationLabel) {
+                try {
+                    document.getElementById("uiConditionLabel").innerText = "Updating metrics...";
+                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,rain&timezone=Asia/Kolkata`;
+
+                    const res = await fetch(weatherUrl);
+                    const data = await res.json();
+
+                    if (data.current) {
+                        const temp = data.current.temperature_2m;
+                        const humidity = data.current.relative_humidity_2m;
+                        const wind = data.current.wind_speed_10m;
+                        const rain = data.current.rain;
+
+                        // Inject metrics into DOM
+                        document.getElementById("uiLocationLabel").innerText = locationLabel;
+                        document.getElementById("uiTempLabel").innerText = `${temp.toFixed(1)}°C`;
+                        document.getElementById("uiHumidityLabel").innerText = `${humidity}%`;
+                        document.getElementById("uiWindLabel").innerText = `${wind.toFixed(1)} km/h`;
+
+                        // Re-evaluate condition interpretations dynamically
+                        let conditions = "Clear Sky Profile";
+                        if (rain > 0) conditions = "Active Rainy Conditions 🌧️";
+                        else if (humidity > 75) conditions = "Humid / Overcast Sky ☁️";
+                        document.getElementById("uiConditionLabel").innerText = conditions;
+
+                        // Conditional alert configuration logic
+                        const alertBox = document.getElementById("alertDescriptionText");
+                        if (rain > 5) {
+                            alertBox.innerText = "Heavy Rainfall Warning! Ensure adequate sub-surface channel drainage blocks are kept clear.";
+                        } else {
+                            alertBox.innerText = "Standard conditions for seasonal tillage. Current heat indices favor steady field aeration tracks.";
+                        }
+                    }
+                } catch (err) {
+                    document.getElementById("uiConditionLabel").innerText = "Network link failure.";
+                }
+            }
+
+            // Geocoding Interface logic executing on Nominatim endpoint maps
+            async function executeGeocodingQuery(cityName) {
+                if (!cityName) return;
+                try {
+                    const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)},India&format=json&limit=1`;
+                    const res = await fetch(geoUrl, {
+                        headers: {
+                            'User-Agent': 'KrishiMitraAgroApp'
+                        }
+                    });
+                    const results = await res.json();
+
+                    if (results && results.length > 0) {
+                        currentLat = parseFloat(results[0].lat);
+                        currentLon = parseFloat(results[0].lon);
+                        const cleanName = results[0].display_name.split(',')[0] + ", India";
+
+                        // Update Leaflet dynamic mapping frames coordinates repositioning
+                        map.setView([currentLat, currentLon], 10);
+                        if (currentMarker) map.removeLayer(currentMarker);
+                        currentMarker = L.marker([currentLat, currentLon]).addTo(map);
+
+                        fetchMeteorologyData(currentLat, currentLon, cleanName);
+                    } else {
+                        alert("Location pointer not found inside Indian boundaries.");
+                    }
+                } catch (err) {
+                    console.error("Geocoding failed to compile.", err);
+                }
+            }
+
+            // Core Trigger Events Observers
+            document.getElementById("searchExecuteBtn").addEventListener("click", () => {
+                const text = document.getElementById("citySearchInput").value;
+                executeGeocodingQuery(text);
+            });
+
+            document.getElementById("citySearchInput").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") executeGeocodingQuery(e.target.value);
+            });
+
+            document.getElementById("geoLocateBtn").addEventListener("click", () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        currentLat = pos.coords.latitude;
+                        currentLon = pos.coords.longitude;
+
+                        map.setView([currentLat, currentLon], 12);
+                        if (currentMarker) map.removeLayer(currentMarker);
+                        currentMarker = L.marker([currentLat, currentLon]).addTo(map);
+
+                        fetchMeteorologyData(currentLat, currentLon, "My Current Field Coordinates");
+                    });
+                }
+            });
+
+            // Initial startup payload invocation setup
+            fetchMeteorologyData(currentLat, currentLon, "Ahmedabad, Gujarat");
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiMitra Dashboard — Portal</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+         :root {
+            --primary-dark: #1a4d2e;
+            --primary-mid: #2d7a45;
+            --primary-light: #4a9e5c;
+            --accent-gold: #c8a951;
+            --bg-cream: #f5f0e8;
+            --white: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --sidebar-width: 280px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Dashboard Sidebar Navigation Layout */
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-dark);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 4px solid var(--accent-gold);
+            z-index: 10;
+        }
+        
+        .sidebar-brand {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-brand h2 {
+            font-size: 1.5rem;
+            color: var(--white);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sidebar-brand h2 span {
+            color: var(--accent-gold);
+        }
+        
+        .user-greeting {
+            padding: 15px 20px;
+            background-color: rgba(0, 0, 0, 0.15);
+            font-size: 0.9rem;
+            color: var(--bg-cream);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+        
+        .menu-item button {
+            width: 100%;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.75);
+            padding: 15px 25px;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .menu-item button:hover {
+            color: var(--white);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .menu-item.active button {
+            color: var(--white);
+            background-color: var(--primary-mid);
+            border-left-color: var(--accent-gold);
+        }
+        
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #a73a3a;
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #822c2c;
+        }
+        /* Main Workspace Content Area */
+        
+        .main-workspace {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: var(--bg-cream);
+        }
+        
+        .workspace-header {
+            background-color: var(--white);
+            padding: 18px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 5;
+        }
+        
+        .workspace-title h1 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .system-time {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        /* Module Frame container viewport */
+        
+        .module-viewport-container {
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100% - 60px);
+            position: relative;
+        }
+        
+        .module-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: var(--bg-cream);
+        }
+        /* Mobile Layout Adjustments Toggle */
+        
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: absolute;
+                transform: translateY(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateY(0);
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .main-workspace {
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar View Wrapper Navigation Grid Component -->
+    <aside class="sidebar" id="appSidebar">
+        <div>
+            <div class="sidebar-brand">
+                <h2>Krishi<span>Mitra</span> 🌾</h2>
+            </div>
+            <div class="user-greeting">
+                <i class="fa-solid fa-circle-user"></i> Namaste, {{ name if name else 'Farmer Friend' }}
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-target="/crop" data-title="🌱 Crop Recommendation Engine">
+                    <button><i class="fa-solid fa-seedling"></i> Crop Recommendation</button>
+                </li>
+                <li class="menu-item" data-target="/soil" data-title="🧪 Deep Soil Diagnostics">
+                    <button><i class="fa-solid fa-flask"></i> Soil Analysis</button>
+                </li>
+                <li class="menu-item" data-target="/weather" data-title="⛅ Weather Intelligence Panel">
+                    <button><i class="fa-solid fa-cloud-sun-rain"></i> Weather Intel</button>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Sign Out Portal</a>
+        </div>
+    </aside>
+
+    <!-- Main View Workspace Engine Panel -->
+    <main class="main-workspace">
+        <header class="workspace-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+                <div class="workspace-title">
+                    <h1 id="panelTitle">🌱 Crop Recommendation Engine</h1>
+                </div>
+            </div>
+            <div class="system-time">
+                <i class="fa-regular fa-clock"></i> Live Monitor Portal
+            </div>
+        </header>
+
+        <!-- Sandbox iFrame View Injection Target Layer -->
+        <div class="module-viewport-container">
+            <iframe src="/crop" class="module-iframe" id="workspaceFrame" name="workspaceFrame"></iframe>
+        </div>
+    </main>
+
+    <!-- Async Route Loading Switcher System Interceptor Logic Block -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll(".menu-item");
+            const workspaceFrame = document.getElementById("workspaceFrame");
+            const panelTitle = document.getElementById("panelTitle");
+            const sidebar = document.getElementById("appSidebar");
+            const menuToggle = document.getElementById("menuToggle");
+
+            // Handle clean switching inside AJAX/Iframe workspace without frame jumps
+            menuItems.forEach(item => {
+                item.addEventListener("click", function() {
+                    // Remove current focus attributes cleanly
+                    menuItems.forEach(i => i.classList.remove("active"));
+
+                    // Activate focused element parameters
+                    this.classList.add("active");
+
+                    const routesUrl = this.getAttribute("data-target");
+                    const descriptiveTitle = this.getAttribute("data-title");
+
+                    // Route loading execution
+                    workspaceFrame.src = routesUrl;
+                    panelTitle.innerText = descriptiveTitle;
+
+                    // Close sidebar panel inside responsive layout targets
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove("open");
+                    }
+                });
+            });
+
+            // Toggle Mobile Dashboard Menus smoothly
+            if (menuToggle) {
+                menuToggle.addEventListener("click", () => {
+                    sidebar.classList.toggle("open");
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

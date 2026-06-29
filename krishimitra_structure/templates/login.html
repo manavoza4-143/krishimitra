@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiMitra Portal — Gateway</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+         :root {
+            --primary-dark: #1a4d2e;
+            --primary-mid: #2d7a45;
+            --primary-light: #4a9e5c;
+            --accent-gold: #c8a951;
+            --bg-cream: #f5f0e8;
+            --white: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --danger-red: #d9534f;
+            --success-green: #2b7a43;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(245, 240, 232, 0.85), rgba(245, 240, 232, 0.9)), url('https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1200&auto=format&fit=crop') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .auth-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 5px solid var(--primary-dark);
+            border-bottom: 5px solid var(--accent-gold);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h2 {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        /* Flash Message Containers */
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-danger {
+            background-color: #fce8e6;
+            color: var(--danger-red);
+            border: 1px solid #f5c2c1;
+        }
+        
+        .alert-success {
+            background-color: #e6f4ea;
+            color: var(--success-green);
+            border: 1px solid #c3e6cb;
+        }
+        /* Form Configurations */
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background-color: #fafafa;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-mid);
+            background-color: var(--white);
+        }
+        /* Form grid setup for location variables */
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-mid);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(45, 122, 69, 0.2);
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .toggle-auth-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .toggle-auth-link a {
+            color: var(--primary-mid);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .toggle-auth-link a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+        /* Toggle state handlers */
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-container">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }}">
+                <i class="fa-solid {{ 'fa-circle-exclamation' if category == 'danger' else 'fa-circle-check' }}"></i> {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
+
+        <div id="loginFormCard">
+            <div class="auth-header">
+                <h2>Portal Login</h2>
+                <p>Access your crop recommendations and soil reports[cite: 6, 7].</p>
+            </div>
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Sign In To Dashboard</button>
+            </form>
+
+            <div class="toggle-auth-link">
+                New user? <a id="linkToRegister">Create account here</a>
+            </div>
+        </div>
+
+        <div id="registerFormCard" class="hidden">
+            <div class="auth-header">
+                <h2>Farmer Registration</h2>
+                <p>Join KrishiMitra to get personalized field diagnostic tracking[cite: 1].</p>
+            </div>
+
+            <form action="/register" method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" class="form-control" placeholder="Create strong password" minlength="6" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>State</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <input type="text" name="state" class="form-control" placeholder="e.g. Gujarat" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>District</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                            <input type="text" name="district" class="form-control" placeholder="e.g. Ahmedabad" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Register Portal Account</button>
+            </form>
+
+            <div class="toggle-auth-link">
+                Already registered? <a id="linkToLogin">Login to account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loginCard = document.getElementById("loginFormCard");
+            const registerCard = document.getElementById("registerFormCard");
+
+            const toRegister = document.getElementById("linkToRegister");
+            const toLogin = document.getElementById("linkToLogin");
+
+            toRegister.addEventListener("click", () => {
+                loginCard.classList.add("hidden");
+                registerCard.classList.remove("hidden");
+            });
+
+            toLogin.addEventListener("click", () => {
+                registerCard.classList.add("hidden");
+                loginCard.classList.remove("hidden");
+            });
+        });
+    </script>
+</body>
+
+</html>
