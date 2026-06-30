@@ -1,0 +1,10 @@
+flask==3.0.0
+scikit-learn==1.4.0
+xgboost==2.0.3
+tensorflow==2.15.0
+pandas
+numpy
+requests
+werkzeug
+gunicorn
+python-dotenv

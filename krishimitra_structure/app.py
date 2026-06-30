@@ -3,6 +3,10 @@ import sqlite3
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# Import blueprint route modules for ML predictions
+from routes.crop import crop_bp
+from routes.soil import soil_bp
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "krishimitra_secret_gold_2026")
 DB_PATH = os.path.join("database", "krishimitra.db")
@@ -74,6 +78,14 @@ def init_db():
 
 # Initialize tables on startup
 init_db()
+
+# -------------------------------------------------------------------------
+# HOOKING THE MODEL BLUEPRINTS
+# -------------------------------------------------------------------------
+# This automatically registers the real predictive routes /api/crop/recommend
+# and /api/soil/analyse directly into your web context layout
+app.register_blueprint(crop_bp)
+app.register_blueprint(soil_bp)
 
 # -------------------------------------------------------------------------
 # HTML PAGE ROUTING
@@ -157,75 +169,6 @@ def weather_page():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     return render_template('weather.html')
-
-
-# -------------------------------------------------------------------------
-# API ROUTING FOR ML MODULES (Returns JSON responses)
-# -------------------------------------------------------------------------
-
-@app.route('/api/crop/recommend', methods=['POST'])
-def api_crop_recommend():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    data = request.json or request.form
-    # Fallback placeholders replicating backend ML calculations
-    # In a fully deployed context, you would load your models/crop_model.pkl here
-    top_crops = [
-        {"crop": "Rice 🌾", "confidence": 94.5, "tips": "Requires abundant watering and structural clayey soils."},
-        {"crop": "Maize 🌽", "confidence": 88.2, "tips": "Ensure good drainage system and timely Nitrogen applications."},
-        {"crop": "Cotton 🌱", "confidence": 76.1, "tips": "Thrives best in deep black soils with moderate rainfall."},
-        {"crop": "Moong Jowar 🌾", "confidence": 65.4, "tips": "Great low-moisture alternative for drought periods."},
-        {"crop": "Wheat 🌾", "confidence": 58.0, "tips": "Optimal choices during winter cycles with light irrigation."}
-    ]
-    
-    # Log query meta to database
-    conn = get_db_connection()
-    conn.execute('''
-        INSERT INTO crop_queries (user_id, state, district, season, n, p, k, ph, temperature, humidity, rainfall, top_crop, results_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (session['user_id'], data.get('state'), data.get('district'), data.get('season'),
-          data.get('n'), data.get('p'), data.get('k'), data.get('ph'),
-          data.get('temperature'), data.get('humidity'), data.get('rainfall'), "Rice", str(top_crops)))
-    conn.commit()
-    conn.close()
-
-    return jsonify(top_crops)
-
-
-@app.route('/api/soil/analyse', methods=['POST'])
-def api_soil_analyse():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    data = request.json or request.form
-    
-    # Replicating Deep Learning model categorization output dynamically
-    health_score = 78  # Mock calculation
-    suggestions = [
-        "Incorporate organic compost to enhance the overall Organic Carbon profile.",
-        "Apply Gypsum if the alkaline EC metrics drift outside normal bands.",
-        "Balance localized Nitrogen deficiency using targeted Neem-coated Urea feeds.",
-        "Utilize drip irrigation methods to consistently handle light moisture retention setups.",
-        "Schedule a micro-booster crop feed containing Zinc Sulphate before the active sowing stage."
-    ]
-    
-    conn = get_db_connection()
-    conn.execute('''
-        INSERT INTO soil_queries (user_id, crop, soil_type, n, p, k, ph, organic_carbon, ec, health_score, suggestions_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (session['user_id'], data.get('crop'), data.get('soil_type'),
-          data.get('n'), data.get('p'), data.get('k'), data.get('ph'),
-          data.get('organic_carbon'), data.get('ec'), health_score, str(suggestions)))
-    conn.commit()
-    conn.close()
-
-    return jsonify({
-        "health_score": health_score,
-        "deficiencies": ["Zinc (Zn) - Mild", "Organic Carbon - Low"],
-        "suggestions": suggestions,
-        "timeline": "3-4 Weeks before next sowing cycle"
-    })
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

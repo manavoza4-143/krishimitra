@@ -382,120 +382,130 @@
             // Slider synchronization linkage
             const phSlider = document.getElementById("phSlider");
             const phValue = document.getElementById("phValue");
-            phSlider.addEventListener("input", (e) => phValue.innerText = e.target.value);
-
-            // 1. Season Auto-Detection [cite: 14, 37]
-            const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec [cite: 37]
-            const seasonSelect = document.getElementById("seasonSelect");
-            if (currentMonth >= 5 && currentMonth <= 9) {
-                seasonSelect.value = 'Kharif'; // Jun-Oct [cite: 13, 39]
-            } else if (currentMonth >= 10 || currentMonth <= 2) {
-                seasonSelect.value = 'Rabi'; // Nov-Mar [cite: 13, 40]
-            } else {
-                seasonSelect.value = 'Zaid'; // Apr-May [cite: 13, 41]
+            if (phSlider) {
+                phSlider.addEventListener("input", (e) => phValue.innerText = e.target.value);
             }
 
-            // 2. Open-Meteo Geolocation Weather Auto-fill 
+            // Season Auto-Detection
+            const currentMonth = new Date().getMonth();
+            const seasonSelect = document.getElementById("seasonSelect");
+            if (seasonSelect) {
+                if (currentMonth >= 5 && currentMonth <= 9) {
+                    seasonSelect.value = 'Kharif';
+                } else if (currentMonth >= 10 || currentMonth <= 2) {
+                    seasonSelect.value = 'Rabi';
+                } else {
+                    seasonSelect.value = 'Zaid';
+                }
+            }
+
+            // Open-Meteo Geolocation Weather Auto-fill
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async(position) => {
                     try {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`);
-                        [cite: 41]
                         const meta = await response.json();
-                        [cite: 41]
 
                         if (meta.current) {
-                            document.getElementById("temperatureInput").value = meta.current.temperature_2m.toFixed(1);
-                            [cite: 41]
-                            document.getElementById("humidityInput").value = meta.current.relative_humidity_2m.toFixed(1);
-                            [cite: 41]
+                            if (document.getElementById("temperatureInput")) document.getElementById("temperatureInput").value = meta.current.temperature_2m.toFixed(1);
+                            if (document.getElementById("humidityInput")) document.getElementById("humidityInput").value = meta.current.relative_humidity_2m.toFixed(1);
                         }
                     } catch (err) {
-                        console.warn("Weather pre-fetch skipped due to route network parameters.", err);
+                        console.warn("Weather pre-fetch skipped.");
                     }
                 });
             }
 
-            // 3. Form Submission Handling with Dynamic Progress Animations
+            // Form Submission Handling with Dynamic Progress Animations
             const form = document.getElementById("cropPredictionForm");
             const loader = document.getElementById("loadingWrapper");
             const barFill = document.getElementById("progressBarFill");
             const resultsBox = document.getElementById("resultsContainer");
             const resultsGrid = document.getElementById("resultsGrid");
 
-            form.addEventListener("submit", function(event) {
-                event.preventDefault();
+            if (form) {
+                form.addEventListener("submit", function(event) {
+                    // CRITICAL: This line stops the page from reloading and appending variables to the URL!
+                    event.preventDefault();
 
-                // Clear previous runs cleanly
-                resultsBox.style.display = "none";
-                loader.style.display = "block";
-                barFill.style.width = "0%";
+                    if (resultsBox) resultsBox.style.display = "none";
+                    if (loader) loader.style.display = "block";
+                    if (barFill) barFill.style.width = "0%";
 
-                // Extract structural data payloads
-                const formData = new FormData(form);
-                const payload = {};
-                formData.forEach((val, key) => payload[key] = isNaN(val) ? val : parseFloat(val));
+                    // Extract structural data payloads
+                    const formData = new FormData(form);
+                    const payload = {};
+                    formData.forEach((val, key) => payload[key] = isNaN(val) ? val : parseFloat(val));
 
-                // Progress animation simulation metrics control setup
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 5;
-                    barFill.style.width = `${progress}%`;
-                    if (progress >= 100) clearInterval(interval);
-                }, 40);
+                    // Progress animation simulation
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        if (barFill) barFill.style.width = `${progress}%`;
+                        if (progress >= 100) clearInterval(interval);
+                    }, 40);
 
-                // Dispatch call to Flask Backend Proxy Routes
-                fetch('/api/crop/recommend', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        setTimeout(() => {
-                            loader.style.display = "none";
-                            resultsGrid.innerHTML = "";
+                    // Send absolute URL targeting to avoid iframe context relative routing errors
+                    fetch(window.location.origin + '/api/crop/recommend', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                if (loader) loader.style.display = "none";
+                                if (!resultsGrid) return;
+                                resultsGrid.innerHTML = "";
 
-                            data.forEach(item => {
-                                const card = document.createElement("div");
-                                card.className = "crop-card";
+                                if (data.error) {
+                                    alert("Error from model: " + data.error);
+                                    return;
+                                }
 
-                                const seasonClass = payload.season.toLowerCase();
+                                data.forEach(item => {
+                                    const card = document.createElement("div");
+                                    card.className = "crop-card";
+                                    const seasonClass = (payload.season || 'kharif').toLowerCase();
 
-                                card.innerHTML = `
-                                <div class="crop-title-row">
-                                    <span class="crop-name">${item.crop}</span>
-                                    <span class="season-badge badge-${seasonClass}">${payload.season}</span>
-                                </div>
-                                <div class="confidence-label">
-                                    <span>Match Accuracy Profile</span>
-                                    <strong>${item.confidence.toFixed(1)}%</strong>
-                                </div>
-                                <div class="confidence-bar">
-                                    <div class="confidence-fill" style="width: ${item.confidence}%"></div>
-                                </div>
-                                <div class="crop-tips">
-                                    <strong>Cultivation Note:</strong> ${item.tips}
-                                </div>
-                            `;
-                                resultsGrid.appendChild(card);
-                            });
+                                    card.innerHTML = `
+                                    <div class="crop-title-row">
+                                        <span class="crop-name">${item.crop}</span>
+                                        <span class="season-badge badge-${seasonClass}">${payload.season || 'Kharif'}</span>
+                                    </div>
+                                    <div class="confidence-label">
+                                        <span>Match Accuracy Profile</span>
+                                        <strong>${item.confidence.toFixed(1)}%</strong>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: ${item.confidence}%"></div>
+                                    </div>
+                                    <div class="crop-tips">
+                                        <strong>Cultivation Note:</strong> ${item.tips}
+                                    </div>
+                                `;
+                                    resultsGrid.appendChild(card);
+                                });
 
-                            resultsBox.style.display = "block";
-                        }, 900); // Small buffer to settle UI visually
-                    })
-                    .catch(err => {
-                        clearInterval(interval);
-                        loader.style.display = "none";
-                        alert("Model execution failed to complete.");
-                    });
-            });
+                                if (resultsBox) resultsBox.style.display = "block";
+                            }, 500);
+                        })
+                        .catch(err => {
+                            clearInterval(interval);
+                            if (loader) loader.style.display = "none";
+                            console.error("Fetch operational error:", err);
+                            alert("Model execution failed to complete.");
+                        });
+                });
+            }
         });
     </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>

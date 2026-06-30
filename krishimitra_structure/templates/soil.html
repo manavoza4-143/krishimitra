@@ -433,6 +433,7 @@
         </div>
     </div>
 
+    </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const form = document.getElementById("soilAnalysisForm");
@@ -444,82 +445,97 @@
             const timelineBox = document.getElementById("remediationTimelineBox");
             const timelineSpan = document.getElementById("timelineTargetSpan");
 
-            form.addEventListener("submit", function(event) {
-                event.preventDefault();
+            if (form) {
+                form.addEventListener("submit", function(event) {
+                    // CRITICAL: This line stops the page from reloading and appending variables to the URL!
+                    event.preventDefault();
 
-                // Build structural payload array mappings cleanly
-                const formData = new FormData(form);
-                const payload = {};
-                formData.forEach((val, key) => {
-                    if (key === "deficiency") {
-                        if (!payload[key]) payload[key] = [];
-                        payload[key].push(val);
-                    } else {
-                        payload[key] = isNaN(val) ? val : parseFloat(val);
-                    }
+                    // Build structural payload array mappings cleanly
+                    const formData = new FormData(form);
+                    const payload = {};
+                    formData.forEach((val, key) => {
+                        if (key === "deficiency") {
+                            if (!payload[key]) payload[key] = [];
+                            payload[key].push(val);
+                        } else {
+                            payload[key] = isNaN(val) ? val : parseFloat(val);
+                        }
+                    });
+
+                    // Send absolute URL targeting to avoid iframe context relative routing errors
+                    fetch(window.location.origin + '/api/soil/analyse', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert("Error from model: " + data.error);
+                                return;
+                            }
+
+                            // Inject structural details cleanly inside targeted output modules
+                            if (dashboard) dashboard.style.display = "grid";
+
+                            // 1. Render Gauge Score Vector Fill Length calculations smoothly
+                            const score = data.health_score;
+                            if (scoreText) scoreText.innerText = score;
+
+                            if (gaugeFill) {
+                                // Math parameters: Circumference = 2 * PI * r = 2 * 3.14159 * 70 = ~440
+                                const offset = 440 - (440 * score) / 100;
+                                gaugeFill.style.strokeDashoffset = offset;
+
+                                // Apply conditional color bands contextually to score configurations
+                                if (score < 50) gaugeFill.style.stroke = "var(--danger-red)";
+                                else if (score < 75) gaugeFill.style.stroke = "var(--warning-orange)";
+                                else gaugeFill.style.stroke = "var(--success-green)";
+                            }
+
+                            // 2. Clear out and rebuild the trace deficiencies badging nodes
+                            if (badgesBox) {
+                                badgesBox.innerHTML = "";
+                                data.deficiencies.forEach(def => {
+                                    const pill = document.createElement("span");
+                                    pill.className = "deficiency-badge";
+                                    pill.innerText = def;
+                                    badgesBox.appendChild(pill);
+                                });
+                            }
+
+                            // 3. Construct sequential treatment plan modules
+                            if (timelineBox) {
+                                timelineBox.innerHTML = "";
+                                data.suggestions.forEach((step, index) => {
+                                    const node = document.createElement("li");
+                                    node.className = "step-node";
+                                    node.innerHTML = `
+                                    <h4>Phase Instruction ${index + 1}</h4>
+                                    <p>${step}</p>
+                                `;
+                                    timelineBox.appendChild(node);
+                                });
+                            }
+
+                            if (timelineSpan) timelineSpan.innerText = data.timeline;
+
+                            // Force parent wrapper iframe layout to adapt scroll windows fluidly
+                            if (dashboard) {
+                                window.scrollTo({
+                                    top: dashboard.offsetTop,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Fetch operational error:", err);
+                            alert("Tensor Pipeline failed to evaluate standard matrix metrics.");
+                        });
                 });
-
-                // Dispatch requests directly via Flask endpoints proxies
-                fetch('/api/soil/analyse', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        // Inject structural details cleanly inside targeted output modules
-                        dashboard.style.display = "grid";
-
-                        // 1. Render Gauge Score Vector Fill Length calculations smoothly
-                        const score = data.health_score;
-                        [cite: 24]
-                        scoreText.innerText = score;
-
-                        // Math parameters: Circumference = 2 * PI * r = 2 * 3.14159 * 70 = ~440
-                        const offset = 440 - (440 * score) / 100;
-                        gaugeFill.style.strokeDashoffset = offset;
-
-                        // Apply conditional color bands contextually to score configurations
-                        if (score < 50) gaugeFill.style.stroke = "var(--danger-red)";
-                        else if (score < 75) gaugeFill.style.stroke = "var(--warning-orange)";
-                        else gaugeFill.style.stroke = "var(--success-green)";
-
-                        // 2. Clear out and rebuild the trace deficiencies badging nodes
-                        badgesBox.innerHTML = "";
-                        data.deficiencies.forEach(def => {
-                            [cite: 24]
-                            const pill = document.createElement("span");
-                            pill.className = "deficiency-badge";
-                            pill.innerText = def;
-                            badgesBox.appendChild(pill);
-                        });
-
-                        // 3. Construct sequential treatment plan modules
-                        timelineBox.innerHTML = "";
-                        data.suggestions.forEach((step, index) => {
-                            [cite: 24]
-                            const node = document.createElement("li");
-                            node.className = "step-node";
-                            node.innerHTML = `
-                            <h4>Phase Instruction ${index + 1}</h4> 
-                            <p>${step}</p> 
-                        `;
-                            timelineBox.appendChild(node);
-                        });
-
-                        timelineSpan.innerText = data.timeline;
-                        [cite: 24]
-
-                        // Force parent wrapper iframe layout to adapt scroll windows fluidly
-                        window.scrollTo({
-                            top: dashboard.offsetTop,
-                            behavior: 'smooth'
-                        });
-                    })
-                    .catch(err => alert("Tensor Pipeline failed to evaluate standard matrix metrics."));
-            });
+            }
         });
     </script>
 </body>
